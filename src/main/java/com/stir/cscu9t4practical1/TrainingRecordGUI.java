@@ -17,6 +17,11 @@ public class TrainingRecordGUI extends JFrame implements ActionListener {
     private JTextField mins = new JTextField(2);
     private JTextField secs = new JTextField(2);
     private JTextField dist = new JTextField(4);
+    private JTextField terr = new JTextField(10);
+    private JTextField temp = new JTextField(10);
+    private JTextField rep = new JTextField(2);
+    private JTextField rec = new JTextField(2);
+    private JTextField where = new JTextField(15);
     private JLabel labn = new JLabel(" Name:");
     private JLabel labd = new JLabel(" Day:");
     private JLabel labm = new JLabel(" Month:");
@@ -25,9 +30,20 @@ public class TrainingRecordGUI extends JFrame implements ActionListener {
     private JLabel labmm = new JLabel(" Mins:");
     private JLabel labs = new JLabel(" Secs:");
     private JLabel labdist = new JLabel(" Distance (km):");
+    private JLabel labterr = new JLabel(" Terrain:");
+    private JLabel labtemp = new JLabel(" Tempo:");
+    private JLabel labrep = new JLabel(" Repetitions:");
+    private JLabel labrec = new JLabel(" Recovery:");
+    private JLabel labwhere = new JLabel(" Location:");
     private JButton addR = new JButton("Add");
     private JButton lookUpByDate = new JButton("Look Up");
     private JButton findAllByDate = new JButton("Find All");
+    private JButton remove = new JButton("Remove");
+    private JRadioButton cycle = new JRadioButton("Cycle");
+    private JRadioButton sprint = new JRadioButton("Sprint");
+    private JRadioButton swim = new JRadioButton("Swim");
+
+    private ButtonGroup sport = new ButtonGroup();
 
     private TrainingRecord myAthletes = new TrainingRecord();
 
@@ -65,12 +81,41 @@ public class TrainingRecordGUI extends JFrame implements ActionListener {
         add(labdist);
         add(dist);
         dist.setEditable(true);
+
+        add(labterr);
+        add(terr);
+        terr.setEditable(true);
+        add(labtemp);
+        add(temp);
+        temp.setEditable(true);
+        add(labrep);
+        add(rep);
+        rep.setEditable(true);
+        add(labrec);
+        add(rec);
+        rec.setEditable(true);
+        add(labwhere);
+        add(where);
+        where.setEditable(true);
+
+        sport.add(cycle);
+        sport.add(sprint);
+        sport.add(swim);
+        add(cycle);
+        add(sprint);
+        add(swim);
+        cycle.setActionCommand(cycle.getText());
+        sprint.setActionCommand(sprint.getText());
+        swim.setActionCommand(swim.getText());
+
         add(addR);
         addR.addActionListener(this);
         add(lookUpByDate);
         lookUpByDate.addActionListener(this);
         add(findAllByDate);
         findAllByDate.addActionListener(this);
+        add(remove);
+        remove.addActionListener(this);
         add(outputArea);
         outputArea.setEditable(false);
         setSize(720, 200);
@@ -94,6 +139,9 @@ public class TrainingRecordGUI extends JFrame implements ActionListener {
         if (event.getSource() == findAllByDate) {
             message = findAllByDate();
         }
+        if (event.getSource() == remove) {
+            message = remove();
+        }
         outputArea.setText(message);
         blankDisplay();
     } // actionPerformed
@@ -109,8 +157,32 @@ public class TrainingRecordGUI extends JFrame implements ActionListener {
         int h = Integer.parseInt(hours.getText());
         int mm = Integer.parseInt(mins.getText());
         int s = Integer.parseInt(secs.getText());
-        Entry e = new Entry(n, d, m, y, h, mm, s, km);
-        myAthletes.addEntry(e);
+
+        try {
+            String selected = sport.getSelection().getActionCommand();
+            switch(selected) {
+                case "cycle":
+                    String tr = terr.getText();
+                    String tm = temp.getText();
+                    Entry cyc = new CycleEntry(n, d, m, y, h, mm, s, km, tr, tm);
+                    myAthletes.addEntry(cyc);
+                case "sprint":
+                    int rp = Integer.parseInt(rep.getText());
+                    int rc = Integer.parseInt(rec.getText());
+                    Entry spr = new SprintEntry(n, d, m, y, h, mm, s, km, rp, rc);
+                    myAthletes.addEntry(spr);
+                case "swim":
+                    String wh = where.getText();
+                    Entry swm = new SwimEntry(n, d, m, y, h, mm, s, km, wh);
+                    myAthletes.addEntry(swm);
+            }
+        } catch(Exception exception) {
+            System.out.println("Error: " + exception);
+            Entry e = new Entry(n, d, m, y, h, mm, s, km);
+            myAthletes.addEntry(e);
+        }
+
+
         return message;
     }
     
@@ -132,6 +204,16 @@ public class TrainingRecordGUI extends JFrame implements ActionListener {
         return message;
     }
 
+    public String remove() {
+        String n = name.getText();
+        int m = Integer.parseInt(month.getText());
+        int d = Integer.parseInt(day.getText());
+        int y = Integer.parseInt(year.getText());
+        outputArea.setText("Deleting record ...");
+        String message = myAthletes.remove(n,m,d,y);
+        return message;
+    }
+
     public void blankDisplay() {
         name.setText("");
         day.setText("");
@@ -141,6 +223,11 @@ public class TrainingRecordGUI extends JFrame implements ActionListener {
         mins.setText("");
         secs.setText("");
         dist.setText("");
+        terr.setText("");
+        temp.setText("");
+        rep.setText("");
+        rec.setText("");
+        where.setText("");
 
     }// blankDisplay
     // Fills the input fields on the display for testing purposes only
@@ -153,6 +240,11 @@ public class TrainingRecordGUI extends JFrame implements ActionListener {
         mins.setText(String.valueOf(ent.getMin()));
         secs.setText(String.valueOf(ent.getSec()));
         dist.setText(String.valueOf(ent.getDistance()));
+        terr.setText(String.valueOf(ent.getDistance()));
+        temp.setText(String.valueOf(ent.getDistance()));
+        rep.setText(String.valueOf(ent.getDistance()));
+        rec.setText(String.valueOf(ent.getDistance()));
+        where.setText(String.valueOf(ent.getDistance()));
     }
 
 } // TrainingRecordGUI
